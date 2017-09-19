@@ -56,17 +56,19 @@ ALTER TABLE `messages` ADD FOREIGN KEY (user_id) REFERENCES `users` (`id`);
 -- Test Data
 -- ---
 
--- INSERT INTO `messages` (`id`,`user_id`,`text`,`room`) VALUES 
--- ('0','0','This is James first message','lobby');
+INSERT INTO `users` (`id`,`name`) VALUES
+('0','James');
 
--- INSERT INTO `messages` (`id`,`user_id`,`text`,`room`) VALUES 
--- ('1','1','This is Joes first message','lobby');
+INSERT INTO `users` (`id`,`name`) VALUES
+('1','Joe');
 
--- INSERT INTO `users` (`id`,`name`) VALUES
--- ('0','James');
+INSERT INTO `messages` (`user_id`,`text`,`room`) VALUES 
+('0','This is James first message','lobby');
 
--- INSERT INTO `users` (`id`,`name`) VALUES
--- ('1','Joe');
+INSERT INTO `messages` (`user_id`,`text`,`room`) VALUES 
+('1','This is Joes first message','lobby');
+
+
 
 
 
