@@ -4,7 +4,7 @@ var promise = require('bluebird');
 module.exports = {
   messages: {
     get: function (callback) {   
-      db.connection.query(`SELECT messages.text, messages.room, users.name 
+      db.connection.query(`SELECT *
         FROM messages INNER JOIN users 
         WHERE messages.user_id = users.id`,
         (err, results) => {
@@ -17,16 +17,17 @@ module.exports = {
               messageObj.text = results[i].text;
               messageObj.name = results[i].name;
               messageObj.room = results[i].room;
+              messageObj.objectId = results[i].id;
+              console.log('RESULT ID:', results[i].id);
               outputArr.push(messageObj);
             }
-            console.log('Before callback:', outputArr);
             callback(null, outputArr);
           }
         });
     },
     // a function which produces all the messages
     post: function (message, callback) {
-      var user = message.username;
+      var user = message.name;
       module.exports.users.get( (err, results) => {
         if (err) {
           console.log(`Error getting users: ${err}`);
@@ -47,7 +48,7 @@ module.exports = {
           // find id of user
           if (userId) {
             db.connection.query(`INSERT INTO messages (user_id, text, room) VALUES 
-              ('${userId}', '${message.text}', '${message.roomname}')`, 
+              ('${userId}', '${message.text}', '${message.room}')`, 
               function(err, results) {
                 if (err) {
                   console.log('ERROR INSERTING MESSAGE:', err);
@@ -60,10 +61,10 @@ module.exports = {
               if (err) {  
                 console.log(`Error getting users: ${err}`);
               } else {
-                console.log('LAST ID RESULTS:', results[0]['LAST_INSERT_ID()']);
+                // console.log('LAST ID RESULTS:', results[0]['LAST_INSERT_ID()']);
                 userId = results[0]['LAST_INSERT_ID()'];
                 db.connection.query(`INSERT INTO messages (user_id, text, room) VALUES 
-                  ('${userId}', '${message.text}', '${message.roomname}')`, 
+                  ('${userId}', '${message.text}', '${message.room}')`, 
                   function(err, results) {
                     if (err) {
                       console.log('ERROR INSERTING MESSAGE:', err);

@@ -19,7 +19,7 @@ USE chat;
 DROP TABLE IF EXISTS `messages`;
     
 CREATE TABLE `messages` (
-  `id` INTEGER NOT NULL AUTO_INCREMENT,
+  `id` INTEGER NOT NULL AUTO_INCREMENT UNIQUE,
   `user_id` INTEGER NULL DEFAULT NULL,
   `text` MEDIUMTEXT NULL DEFAULT NULL,
   `room` MEDIUMTEXT NULL DEFAULT NULL,
@@ -34,7 +34,7 @@ CREATE TABLE `messages` (
 DROP TABLE IF EXISTS `users`;
     
 CREATE TABLE `users` (
-  `id` INTEGER NOT NULL AUTO_INCREMENT,
+  `id` INTEGER NOT NULL AUTO_INCREMENT UNIQUE,
   `name` MEDIUMTEXT NULL DEFAULT NULL,
   PRIMARY KEY (`id`)
 );
@@ -57,16 +57,16 @@ ALTER TABLE `messages` ADD FOREIGN KEY (user_id) REFERENCES `users` (`id`);
 -- ---
 
 INSERT INTO `users` (`id`,`name`) VALUES
-('0','James');
+('1','James');
 
 INSERT INTO `users` (`id`,`name`) VALUES
-('1','Joe');
+('2','Joe');
 
 INSERT INTO `messages` (`user_id`,`text`,`room`) VALUES 
-('0','This is James first message','lobby');
+('1','This is James first message','lobby');
 
 INSERT INTO `messages` (`user_id`,`text`,`room`) VALUES 
-('1','This is Joes first message','lobby');
+('2','This is Joes first message','lobby');
 
 
 

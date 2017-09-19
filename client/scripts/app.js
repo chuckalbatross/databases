@@ -1,18 +1,18 @@
 
 var app = {
 
-  //TODO: The current 'handleUsernameClick' function just toggles the class 'friend'
-  //to all messages sent by the user
+  //TODO: The current 'handlenameClick' function just toggles the class 'friend'
+  //to all messages sent by the name
   server: 'http://127.0.0.1:3000/classes/messages',
-  username: 'anonymous',
-  roomname: 'lobby',
+  name: 'anonymous',
+  room: 'lobby',
   lastMessageId: 0,
   friends: {},
   messages: [],
 
   init: function() {
-    // Get username
-    app.username = window.location.search.substr(10);
+    // Get name
+    app.name = window.location.search.substr(10);
 
     // Cache jQuery selectors
     app.$message = $('#message');
@@ -21,7 +21,7 @@ var app = {
     app.$send = $('#send');
 
     // Add listeners
-    app.$chats.on('click', '.username', app.handleUsernameClick);
+    app.$chats.on('click', '.name', app.handlenameClick);
     app.$send.on('submit', app.handleSubmit);
     app.$roomSelect.on('change', app.handleRoomChange);
 
@@ -42,7 +42,8 @@ var app = {
     $.ajax({
       url: app.server,
       type: 'POST',
-      data: message,
+      data: JSON.stringify(message),
+      contentType: 'application/json',
       success: function (data) {
         // Clear messages input
         app.$message.val('');
@@ -63,6 +64,7 @@ var app = {
       data: { order: '-createdAt' },
       contentType: 'application/json',
       success: function(data) {
+        data = JSON.parse(data);
         // Don't bother if we have nothing to work with
         if (!data.results || !data.results.length) { return; }
 
@@ -102,8 +104,8 @@ var app = {
       // Add all fetched messages that are in our current room
       messages
         .filter(function(message) {
-          return message.roomname === app.roomname ||
-                 app.roomname === 'lobby' && !message.roomname;
+          return message.room === app.room ||
+                 app.room === 'lobby' && !message.room;
         })
         .forEach(app.renderMessage);
     }
@@ -120,45 +122,45 @@ var app = {
     if (messages) {
       var rooms = {};
       messages.forEach(function(message) {
-        var roomname = message.roomname;
-        if (roomname && !rooms[roomname]) {
+        var room = message.room;
+        if (room && !rooms[room]) {
           // Add the room to the select menu
-          app.renderRoom(roomname);
+          app.renderRoom(room);
 
           // Store that we've added this room already
-          rooms[roomname] = true;
+          rooms[room] = true;
         }
       });
     }
 
     // Select the menu option
-    app.$roomSelect.val(app.roomname);
+    app.$roomSelect.val(app.room);
   },
 
-  renderRoom: function(roomname) {
+  renderRoom: function(room) {
     // Prevent XSS by escaping with DOM methods
-    var $option = $('<option/>').val(roomname).text(roomname);
+    var $option = $('<option/>').val(room).text(room);
 
     // Add to select
     app.$roomSelect.append($option);
   },
 
   renderMessage: function(message) {
-    if (!message.roomname) {
-      message.roomname = 'lobby';
+    if (!message.room) {
+      message.room = 'lobby';
     }
 
     // Create a div to hold the chats
     var $chat = $('<div class="chat"/>');
 
     // Add in the message data using DOM methods to avoid XSS
-    // Store the username in the element's data attribute
-    var $username = $('<span class="username"/>');
-    $username.text(message.username + ': ').attr('data-roomname', message.roomname).attr('data-username', message.username).appendTo($chat);
+    // Store the name in the element's data attribute
+    var $name = $('<span class="name"/>');
+    $name.text(message.name + ': ').attr('data-room', message.room).attr('data-name', message.name).appendTo($chat);
 
     // Add the friend class
-    if (app.friends[message.username] === true) {
-      $username.addClass('friend');
+    if (app.friends[message.name] === true) {
+      $name.addClass('friend');
     }
 
     var $message = $('<br><span/>');
@@ -169,20 +171,20 @@ var app = {
 
   },
 
-  handleUsernameClick: function(event) {
+  handlenameClick: function(event) {
 
-    // Get username from data attribute
-    var username = $(event.target).data('username');
+    // Get name from data attribute
+    var name = $(event.target).data('name');
 
-    if (username !== undefined) {
+    if (name !== undefined) {
       // Toggle friend
-      app.friends[username] = !app.friends[username];
+      app.friends[name] = !app.friends[name];
 
-      // Escape the username in case it contains a quote
-      var selector = '[data-username="' + username.replace(/"/g, '\\\"') + '"]';
+      // Escape the name in case it contains a quote
+      var selector = '[data-name="' + name.replace(/"/g, '\\\"') + '"]';
 
-      // Add 'friend' CSS class to all of that user's messages
-      var $usernames = $(selector).toggleClass('friend');
+      // Add 'friend' CSS class to all of that name's messages
+      var $names = $(selector).toggleClass('friend');
     }
   },
 
@@ -191,21 +193,21 @@ var app = {
     var selectIndex = app.$roomSelect.prop('selectedIndex');
     // New room is always the first option
     if (selectIndex === 0) {
-      var roomname = prompt('Enter room name');
-      if (roomname) {
+      var room = prompt('Enter room name');
+      if (room) {
         // Set as the current room
-        app.roomname = roomname;
+        app.room = room;
 
         // Add the room to the menu
-        app.renderRoom(roomname);
+        app.renderRoom(room);
 
         // Select the menu option
-        app.$roomSelect.val(roomname);
+        app.$roomSelect.val(room);
       }
     } else {
       app.startSpinner();
       // Store as undefined for empty names
-      app.roomname = app.$roomSelect.val();
+      app.room = app.$roomSelect.val();
     }
     // Rerender messages
     app.renderMessages(app.messages);
@@ -213,9 +215,9 @@ var app = {
 
   handleSubmit: function(event) {
     var message = {
-      username: app.username,
+      name: app.name,
       text: app.$message.val(),
-      roomname: app.roomname || 'lobby'
+      room: app.room || 'lobby'
     };
 
     app.send(message);

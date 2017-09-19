@@ -8,7 +8,11 @@ module.exports = {
           console.log('ERROR:', err);
         } else {
           res.writeHead(200);
-          res.end(JSON.stringify(content));
+          // console.log("CONTENT IS:", content);
+          var output = {};
+          output.results = content;
+          // console.log("OUTPUT IS:", output);
+          res.end(JSON.stringify(output));
         }
       });
         // res.end(JSON.stringify(messagesArr));
